@@ -7,10 +7,17 @@
     "type": "git",
     "url": "git+https://github.com/Hydrothermal/zorkotron.git"
   },
-  "contributors": ["Hydrothermal", "cthuluhoop123"],
+  "contributors": [
+    "Hydrothermal",
+    "cthuluhoop123"
+  ],
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/Hydrothermal/zorkotron/issues"
   },
-  "homepage": "https://github.com/Hydrothermal/zorkotron#readme"
+  "homepage": "https://github.com/Hydrothermal/zorkotron#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.0.0"
+  }
 }
