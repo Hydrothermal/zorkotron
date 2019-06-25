@@ -11,8 +11,9 @@ const actions = {
 };
 
 async function getVotedAction(game) {
-    let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]);
-
+    let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]).sort((a, b) => b.count - a.count);
+    await game.message.clearReactions().catch(err => { });
+    return votes;
     // TODO: return highest-voted action(s) and clear all reactions
 }
 
@@ -21,13 +22,13 @@ async function postNewGame(channel) {
         let message = await channel.send("Creating a new game...");
 
         // add action emojis
-        for(let emoji in actions) {
+        for (let emoji in actions) {
             await message.react(emoji);
         }
 
         emitter.emit("new game", message);
         message.edit("Ready to play! Taking next action in 10 seconds...");
-    } catch(err) {
+    } catch (err) {
         console.error(err);
     }
 }
@@ -41,14 +42,14 @@ function initialize() {
     });
 
     client.on("message", message => {
-        switch(message.content) {
+        switch (message.content) {
             case "!start":
-            postNewGame(message.channel);
-            break;
+                postNewGame(message.channel);
+                break;
 
             case "!end":
-            // end ongoing game
-            break;
+                // end ongoing game
+                break;
         }
     });
 }
