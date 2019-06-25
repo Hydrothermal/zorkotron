@@ -12,7 +12,15 @@ const actions = {
 
 async function getVotedAction(game) {
     let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]).sort((a, b) => b.count - a.count);
-    await game.message.clearReactions().catch(err => { });
+    await Promise.all(
+        votes.map(async reaction => {
+            await Promise.all(
+                reaction.users.map(async user => {
+                    if (!user.bot) { await reaction.remove(user); };
+                })
+            );
+        })
+    );
     return votes;
     // TODO: return highest-voted action(s) and clear all reactions
 }
