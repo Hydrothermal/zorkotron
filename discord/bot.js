@@ -10,19 +10,21 @@ const actions = {
     "\u2694": "attack"
 };
 
-async function getVotedAction(game) {
+async function getVotes(game) {
     let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]).sort((a, b) => b.count - a.count);
+    
     await Promise.all(
         votes.map(async reaction => {
+            // remove all votes except the bot's
             await Promise.all(
-                reaction.users.map(async user => {
-                    if (!user.bot) { await reaction.remove(user); };
+                reaction.users.map(user => {
+                    if (user !== client.user) { return reaction.remove(user); }
                 })
             );
         })
     );
+
     return votes;
-    // TODO: return highest-voted action(s) and clear all reactions
 }
 
 async function postNewGame(channel) {
