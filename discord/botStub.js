@@ -1,5 +1,5 @@
-const keypress = require('keypress');
-const { EventEmitter } = require('events');
+const keypress = require("keypress");
+const { EventEmitter } = require("events");
 const emitter = new EventEmitter();
 
 keypress(process.stdin);
@@ -8,12 +8,12 @@ process.stdin.resume();
 
 function getVotes() {
     return new Promise(resolve => {
-        console.log('Please press a key');
+        console.log("Please press a key");
 
-        process.stdin.once('keypress', function (ch, key) {
+        process.stdin.once("keypress", function (ch, key) {
             let action;
 
-            if (key && key.ctrl & key.name === 'c') { process.exit(0); }
+            if (key && key.ctrl & key.name === "c") { process.exit(0); }
             
             switch (key.name) {
                 case "up":
@@ -43,7 +43,7 @@ function getVotes() {
 }
 
 function initialize() {
-    emitter.emit("new game", { id: 'lol' });
+    emitter.emit("new game", { id: "lol" });
 }
 
 module.exports = Object.assign(emitter, { initialize, getVotes });
