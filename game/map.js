@@ -30,32 +30,49 @@ class Cell {
     }
 }
 
+function carve(cell) {
+    let map = cell.map;
+    let free = cell.neighbors.filter(n => !map.get(n.x, n.y));
+
+    if(free.length !== 0) {
+        map.head = free.random();
+        map.board.push(map.head);
+
+        carve(map.head);
+    }
+}
+
 class Map {
     constructor(width, height) {
         let start_side = ["v", "h"].random();
-        let head;
-
-        if(start_side === "v") {
-            this.start = head = new Cell(this, randRange(0, width - 1), [0, height - 1].random());
-        } else {
-            this.start = head = new Cell(this, [0, width - 1].random(), randRange(0, height - 1));
-        }
-
         this.width = width;
         this.height = height;
+
+        if(start_side === "v") {
+            this.head = new Cell(this, randRange(0, width - 1), [0, height - 1].random());
+        } else {
+            this.head = new Cell(this, [0, width - 1].random(), randRange(0, height - 1));
+        }
+
+        this.start = this.head;
+        this.board = [this.head];
+
+        carve(this.head);
+    }
+
+    get(x, y) {
+        return this.board.find(cell => cell.is(x, y));
     }
 
     visualize() {
         let neighbors = this.start.neighbors;
 
-        console.log(neighbors.join(" "));
-
         for(let y = 0; y < this.height; y++) {
             for(let x = 0; x < this.width; x++) {
                 if(this.start.is(x, y)) {
                     process.stdout.write("[+]");
-                } else if(neighbors.find(c => c.is(x, y))) {
-                    process.stdout.write("[*]");
+                } else if(this.get(x, y)) {
+                    process.stdout.write("[#]");
                 } else {
                     process.stdout.write("[ ]");
                 }
