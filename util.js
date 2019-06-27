@@ -14,4 +14,24 @@ function randRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-module.exports = { randRange, directions, direction_diffs };
+function reverse(direction) {
+    switch (direction) {
+        case "north":
+            return "south";
+            break;
+            
+        case "east":
+            return "west";
+            break;
+            
+        case "south":
+            return "north";
+            break;
+            
+        case "west":
+            return "east";
+            break;
+    }
+}
+
+module.exports = { randRange, directions, direction_diffs, reverse };

@@ -1,4 +1,4 @@
-const { randRange, directions, direction_diffs } = require("../util.js");
+const { randRange, directions, direction_diffs, reverse } = require("../util.js");
 
 class Cell {
     constructor(map, x, y, direction) {
@@ -6,12 +6,14 @@ class Cell {
         this.x = x;
         this.y = y;
         this.direction = direction;
+
+        // generate exits object
+        this.exits = Object.fromEntries(directions.map(dir => [dir, false]));
     }
 
-    get neighbors() {
-        let neighbors = directions.map(dir => this.getRelative(dir));
-
-        return neighbors;
+    connect(cell) {
+        this.exits[cell.direction] = true;
+        cell.exits[reverse(cell.direction)] = true;
     }
 
     getRelative(direction) {
@@ -23,6 +25,12 @@ class Cell {
         return this.x === x && this.y === y;
     }
 
+    get neighbors() {
+        let neighbors = directions.map(dir => this.getRelative(dir));
+
+        return neighbors;
+    }
+
     toString() {
         return `(${this.x}, ${this.y})`;
     }
@@ -30,25 +38,30 @@ class Cell {
 
 function carve(cell, limit) {
     let map = cell.map;
-    let next = cell.getRelative(cell.direction);
+    let straight = cell.getRelative(cell.direction);
     let free = cell.neighbors.filter(n => !map.get(n.x, n.y));
+    let next;
 
     map.board.push(cell);
 
     if (free.length > 0 && (!limit || --limit > 0)) {
-        if (Math.random() < 0.75 && !map.get(next.x, next.y)) {
-            cell = next;
+        if (Math.random() < 0.75 && !map.get(straight.x, straight.y)) {
+            next = straight;
         } else {
-            cell = free.random();
+            next = free.random();
         }
 
-        carve(cell, limit);
+        cell.connect(next);
+        carve(next, limit);
 
-        free = free.filter(c => c.direction !== cell.direction);
+        free = free.filter(c => c.direction !== next.direction);
 
         if (limit >= 5 && free.length > 0 && Math.random() < 0.1) {
+            next = free.random();
+            cell.connect(next);
+
             carve(
-                free.random(),
+                next,
                 [randRange(1, 3), randRange(1, 6), randRange(5, 20)].random()
             );
         }
