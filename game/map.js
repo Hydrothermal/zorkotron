@@ -6,23 +6,32 @@ class Cell {
         this.x = x;
         this.y = y;
         this.direction = direction;
-
-        // generate exits object
-        this.exits = Object.fromEntries(directions.map(dir => [dir, false]));
+        this.exits = [];
     }
 
     connect(cell) {
-        this.exits[cell.direction] = true;
-        cell.exits[reverse(cell.direction)] = true;
+        this.exits.push(cell.direction);
+        cell.exits.push(reverse(cell.direction));
     }
 
     getRelative(direction) {
         let [x_diff, y_diff] = direction_diffs[direction];
-        return new Cell(this.map, this.x + x_diff, this.y + y_diff, direction);
+        let x = this.x + x_diff;
+        let y = this.y + y_diff;
+
+        if(this.map.ready) {
+            return this.map.get(x, y);
+        }
+
+        return new Cell(this.map, x, y, direction);
     }
 
     is(x, y) {
         return this.x === x && this.y === y;
+    }
+
+    get description() {
+        return `${this.map.visualize()}\n\nYou are in a room at ${this.toString()}.\n\nExits: ${this.exits.join(", ")}.`;
     }
 
     get neighbors() {
@@ -73,9 +82,11 @@ class Map {
         this.size = size;
         this.board = [];
 
-        this.start = new Cell(this, 0, 0);
+        this.player = this.start = new Cell(this, 0, 0);
         this.start.direction = directions.random();
+        
         carve(this.start, size);
+        this.ready = true;
     }
 
     get(x, y) {
@@ -95,7 +106,7 @@ class Map {
 
         for (let y = y_min; y <= y_max; y++) {
             for (let x = x_min; x <= x_max; x++) {
-                if (this.start.is(x, y)) {
+                if (this.player.is(x, y)) {
                     output += "[+]";
                 } else if (this.get(x, y)) {
                     output += "[ ]";
@@ -107,10 +118,8 @@ class Map {
             output += "\n";
         }
 
-        console.log(output);
+        return output;
     }
 }
-
-new Map(100).visualize();
 
 module.exports = { Map };

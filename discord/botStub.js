@@ -6,9 +6,14 @@ keypress(process.stdin);
 process.stdin.setRawMode(true);
 process.stdin.resume();
 
+function write(game, text) {
+    console.log("\033[2J");
+    console.log(text);
+}
+
 function getVotes() {
     return new Promise(resolve => {
-        console.log("Please press a key");
+        console.log("Press a key:");
 
         process.stdin.once("keypress", function (ch, key) {
             let action;
@@ -46,4 +51,4 @@ function initialize() {
     emitter.emit("new game", { id: "lol" });
 }
 
-module.exports = Object.assign(emitter, { initialize, getVotes });
+module.exports = Object.assign(emitter, { initialize, getVotes, write });

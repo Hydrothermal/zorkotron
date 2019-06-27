@@ -10,6 +10,10 @@ const actions = {
     "\u2694": "attack"
 };
 
+function write(game, text) {
+    game.message.edit(text);
+}
+
 async function getVotes(game) {
     let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]).sort((a, b) => b.count - a.count);
     
@@ -58,4 +62,4 @@ async function addReactionActions(message) {
     }
 }
 
-Object.assign(emitter, { initialize, getVotes });
+Object.assign(emitter, { initialize, getVotes, write });
