@@ -32,20 +32,30 @@ class Cell {
     }
 }
 
-function carve(cell) {
+function carve(cell, limit) {
     let map = cell.map;
     let next = cell.getRelative(cell.direction);
     let free = cell.neighbors.filter(n => !map.get(n.x, n.y));
 
-    if (free.length !== 0) {
-        if (Math.random() < 0.65 && !next.oob && !map.get(next.x, next.y)) {
+    map.board.push(cell);
+
+    if (free.length > 0 && (!limit || --limit > 0)) {
+        if (Math.random() < 0.75 && !next.oob && !map.get(next.x, next.y)) {
             cell = next;
         } else {
             cell = free.random();
         }
 
-        map.board.push(cell);
-        carve(cell);
+        carve(cell, limit);
+
+        free = free.filter(c => c.direction !== cell.direction);
+
+        if (limit >= 5 && free.length > 0 && Math.random() < 0.1) {
+            carve(
+                free.random(),
+                [randRange(1, 3), randRange(1, 6), randRange(5, 20)].random()
+            );
+        }
     }
 }
 
@@ -53,11 +63,11 @@ class Map {
     constructor(width, height) {
         this.width = width;
         this.height = height;
+        this.board = [];
 
         this.start = new Cell(this, Math.floor(width / 2), Math.floor(height / 2));
         this.start.direction = directions.random();
-        this.board = [this.start];
-        carve(this.start);
+        carve(this.start, 100);
     }
 
     get(x, y) {
@@ -86,6 +96,6 @@ class Map {
     }
 }
 
-new Map(15, 15).visualize();
+new Map(55, 55).visualize();
 
 module.exports = { Map };
