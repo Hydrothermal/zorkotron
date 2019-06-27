@@ -9,13 +9,9 @@ class Cell {
     }
 
     get neighbors() {
-        let neighbors = directions.map(dir => this.getRelative(dir)).filter(cell => !cell.oob);
+        let neighbors = directions.map(dir => this.getRelative(dir));
 
         return neighbors;
-    }
-
-    get oob() {
-        return this.x < 0 || this.y < 0 || this.x >= this.map.width || this.y >= this.map.height;
     }
 
     getRelative(direction) {
@@ -40,7 +36,7 @@ function carve(cell, limit) {
     map.board.push(cell);
 
     if (free.length > 0 && (!limit || --limit > 0)) {
-        if (Math.random() < 0.75 && !next.oob && !map.get(next.x, next.y)) {
+        if (Math.random() < 0.75 && !map.get(next.x, next.y)) {
             cell = next;
         } else {
             cell = free.random();
@@ -60,14 +56,13 @@ function carve(cell, limit) {
 }
 
 class Map {
-    constructor(width, height) {
-        this.width = width;
-        this.height = height;
+    constructor(size) {
+        this.size = size;
         this.board = [];
 
-        this.start = new Cell(this, Math.floor(width / 2), Math.floor(height / 2));
+        this.start = new Cell(this, 0, 0);
         this.start.direction = directions.random();
-        carve(this.start, 100);
+        carve(this.start, size);
     }
 
     get(x, y) {
@@ -75,27 +70,34 @@ class Map {
     }
 
     visualize() {
-        let neighbors = this.start.neighbors;
+        let w = [], h = [];
         let output = "";
 
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
+        this.board.forEach(cell => { w.push(cell.x); h.push(cell.y); });
+
+        let x_min = Math.min(...w);
+        let x_max = Math.max(...w);
+        let y_min = Math.min(...h);
+        let y_max = Math.max(...h);
+
+        for (let y = y_min; y <= y_max; y++) {
+            for (let x = x_min; x <= x_max; x++) {
                 if (this.start.is(x, y)) {
-                    output += ("[+]");
+                    output += "[+]";
                 } else if (this.get(x, y)) {
-                    output += ("[#]");
+                    output += "[ ]";
                 } else {
-                    output += ("[ ]");
+                    output += "   ";
                 }
             }
 
-            output += ("\n");
+            output += "\n";
         }
 
         console.log(output);
     }
 }
 
-new Map(55, 55).visualize();
+new Map(100).visualize();
 
 module.exports = { Map };
