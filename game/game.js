@@ -1,28 +1,28 @@
-const bot = require("../discord/bot.js");
+const bot = require("../discord/botStub.js");
 const games = {};
 const delay = 1000 * 10; // TODO: make configurable
 
 class Game {
-    constructor(message) {
+    constructor(message, testing) {
+        this.delay = testing ? 0 : delay;
         this.message = message;
-
         games[message.id] = this;
     }
 
-    step() {
-        bot.getVotes(this);
-        this.step_clock = setTimeout(this.step.bind(this), delay);
+    async step() {
+        const key = await bot.getVotes(this);
+        this.step_clock = setTimeout(this.step.bind(this), this.delay);
     }
 
     start() {
         console.log("Game started.");
-        this.step_clock = setTimeout(this.step.bind(this), delay);
+        this.step_clock = setTimeout(this.step.bind(this), this.delay);
     }
 }
 
-function initialize() {
+function initialize(testing = false) {
     bot.on("new game", message => {
-        new Game(message).start();
+        new Game(message, testing).start();
     });
 }
 

@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Hydrothermal/zorkotron#readme",
   "dependencies": {
     "discord.js": "^11.5.1",
-    "dotenv": "^8.0.0"
+    "dotenv": "^8.0.0",
+    "keypress": "^0.2.1"
   }
 }
