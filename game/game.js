@@ -1,4 +1,4 @@
-const bot = require("../discord/botStub.js");
+const bot = process.env["cli"] ? require("../discord/botStub.js") : require("../discord/bot.js");
 const games = {};
 const delay = 1000 * 10; // TODO: make configurable
 
@@ -10,7 +10,7 @@ class Game {
     }
 
     async step() {
-        const key = await bot.getVotes(this);
+        const [action] = await bot.getVotes(this);
         this.step_clock = setTimeout(this.step.bind(this), this.delay);
     }
 

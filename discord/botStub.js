@@ -2,20 +2,43 @@ const keypress = require('keypress');
 const { EventEmitter } = require('events');
 const emitter = new EventEmitter();
 
-//const game = new Game(messageStub).start();
+keypress(process.stdin);
+process.stdin.setRawMode(true);
+process.stdin.resume();
 
 function getVotes() {
     return new Promise(resolve => {
-        process.stdin.setRawMode(true);
-        keypress(process.stdin);
         console.log('Please press a key');
-        process.stdin.once('keypress', function (ch, key) {
-            if (key && key.ctrl & key.name === 'c') { process.exit(0); }
-            process.stdin.pause();
-            resolve(key);
-        });
 
-        process.stdin.resume();
+        process.stdin.once('keypress', function (ch, key) {
+            let action;
+
+            if (key && key.ctrl & key.name === 'c') { process.exit(0); }
+            
+            switch (key.name) {
+                case "up":
+                    action = "north";
+                    break;
+
+                case "right":
+                    action = "east";
+                    break;
+
+                case "down":
+                    action = "south";
+                    break;
+
+                case "left":
+                    action = "west";
+                    break;
+            }
+
+            if (action) {
+                resolve([action]);
+            } else {
+                resolve(getVotes());
+            }
+        });
     });
 }
 
