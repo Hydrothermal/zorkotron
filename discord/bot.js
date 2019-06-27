@@ -12,30 +12,16 @@ const actions = {
 
 async function getVotes(game) {
     let votes = game.message.reactions.filter(reaction => actions[reaction.emoji.name]).sort((a, b) => b.count - a.count);
-    
-    await Promise.all(
-        votes.map(async reaction => {
-            // remove all votes except the bot's
-            await Promise.all(
-                reaction.users.map(user => {
-                    if (user !== client.user) { return reaction.remove(user); }
-                })
-            );
-        })
-    );
-
+    await game.message.clearReactions().catch(err => { });
+    await addReactionActions(game.message);
     return votes;
 }
 
 async function postNewGame(channel) {
     try {
         let message = await channel.send("Creating a new game...");
-
         // add action emojis
-        for (let emoji in actions) {
-            await message.react(emoji);
-        }
-
+        await addReactionActions(message);
         emitter.emit("new game", message);
         message.edit("Ready to play! Taking next action in 10 seconds...");
     } catch (err) {
@@ -62,6 +48,12 @@ function initialize() {
                 break;
         }
     });
+}
+
+async function addReactionActions(message) {
+    for (let emoji in actions) {
+        await message.react(emoji);
+    }
 }
 
 Object.assign(emitter, { initialize, getVotes });
