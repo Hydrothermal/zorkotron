@@ -64,4 +64,4 @@ function initialize() {
     });
 }
 
-Object.assign(emitter, { initialize, getVotedAction });
+Object.assign(emitter, { initialize, getVotes });

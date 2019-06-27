@@ -10,7 +10,7 @@ class Game {
     }
 
     step() {
-        bot.getVotedAction(this);
+        bot.getVotes(this);
         this.step_clock = setTimeout(this.step.bind(this), delay);
     }
 
