@@ -34,33 +34,30 @@ class Cell {
 
 function carve(cell) {
     let map = cell.map;
-    let next = map.head.getRelative(map.head.direction);
+    let next = cell.getRelative(cell.direction);
     let free = cell.neighbors.filter(n => !map.get(n.x, n.y));
 
-    if(free.length !== 0) {
-        if(Math.random() < 0.65 && !next.oob && !map.get(next.x, next.y)) {
-            map.head = next;
+    if (free.length !== 0) {
+        if (Math.random() < 0.65 && !next.oob && !map.get(next.x, next.y)) {
+            cell = next;
         } else {
-            map.head = free.random();
+            cell = free.random();
         }
 
-        map.board.push(map.head);
-        carve(map.head);
+        map.board.push(cell);
+        carve(cell);
     }
-
-    map.visualize();
 }
 
 class Map {
     constructor(width, height) {
         this.width = width;
         this.height = height;
-        this.head = new Cell(this, Math.floor(width / 2), Math.floor(height / 2));
-        this.start = this.head;
-        this.board = [this.head];
 
-        this.head.direction = directions.random();
-        carve(this.head);
+        this.start = new Cell(this, Math.floor(width / 2), Math.floor(height / 2));
+        this.start.direction = directions.random();
+        this.board = [this.start];
+        carve(this.start);
     }
 
     get(x, y) {
@@ -71,11 +68,11 @@ class Map {
         let neighbors = this.start.neighbors;
         let output = "";
 
-        for(let y = 0; y < this.height; y++) {
-            for(let x = 0; x < this.width; x++) {
-                if(this.start.is(x, y)) {
+        for (let y = 0; y < this.height; y++) {
+            for (let x = 0; x < this.width; x++) {
+                if (this.start.is(x, y)) {
                     output += ("[+]");
-                } else if(this.get(x, y)) {
+                } else if (this.get(x, y)) {
                     output += ("[#]");
                 } else {
                     output += ("[ ]");
