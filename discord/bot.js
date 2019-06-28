@@ -7,7 +7,8 @@ const actions = {
     "\u2b06": "up",
     "\u27a1": "right",
     "\u2b07": "down",
-    "\u2694": "attack"
+    "\u2694": "attack",
+    "\ud83d\udec4": "take"
 };
 
 function write(game, text) {

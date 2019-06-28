@@ -36,6 +36,10 @@ function getVotes() {
                 case "left":
                     action = "west";
                     break;
+
+                case "t":
+                    action = "take";
+                    break;
             }
 
             if (action) {

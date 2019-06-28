@@ -10,6 +10,23 @@ Array.prototype.random = function() {
     return this[Math.floor(Math.random() * this.length)];
 };
 
+function joinList(arr) {
+    let list;
+
+    if(arr.length === 2) {
+        list = arr.join(" and ");
+    } else if(arr.length > 2) {
+        let last = arr.length - 1;
+
+        arr[last] = "and " + arr[last];
+        list = arr.join(", ");
+    } else {
+        list = arr[0];
+    }
+
+    return list;
+}
+
 function randRange(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -34,4 +51,4 @@ function reverse(direction) {
     }
 }
 
-module.exports = { randRange, directions, direction_diffs, reverse };
+module.exports = { randRange, directions, direction_diffs, reverse, joinList };
