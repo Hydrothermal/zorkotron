@@ -37,6 +37,10 @@ function getVotes() {
                     action = "west";
                     break;
 
+                case "a":
+                    action = "attack";
+                    break;
+
                 case "t":
                     action = "take";
                     break;

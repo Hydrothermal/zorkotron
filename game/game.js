@@ -1,6 +1,6 @@
 const bot = process.env["cli"] ? require("../discord/botStub.js") : require("../discord/bot.js");
 const { Map } = require("./map.js");
-const { joinList } = require("../util.js");
+const { joinList, randRange } = require("../util.js");
 const games = {};
 const delay = 1000 * 10; // TODO: make configurable
 
@@ -12,10 +12,11 @@ class Game {
         this.message = message;
         this.inventory = [];
         this.results = [];
-        this.map = new Map(size);
+        this.hp = 50; // TODO: scale hp with map size
+        this.map = new Map(this, size);
 
         for (let i = 0; i < 10; i++) {
-            let map = new Map(size);
+            let map = new Map(this, size);
 
             if(map.board.length > this.map.board.length && map.board.length <= size * 2) {
                 this.map = map;
@@ -30,6 +31,7 @@ class Game {
         let cell = this.map.player;
         let description = [
             this.map.visualize(),
+            `Current HP: ${this.hp}`,
             `You are standing in ${cell.description}.`
         ];
 
@@ -66,8 +68,21 @@ class Game {
                 if(cell.exits.includes(action)) {
                     this.results.push(`You moved ${action}.`);
                     this.map.player = cell = cell.getRelative(action);
+
+                    // TODO: monster following
                 } else {
                     this.results.push(`You can't go ${action}.`);
+                }
+                break;
+
+            case "attack":
+                if(cell.monsters.length > 0) {
+                    let monster = cell.monsters[0];
+                    
+                    // 3d6 damage
+                    monster.hit(randRange(1, 6) + randRange(1, 6) + randRange(1, 6));
+                } else {
+                    this.results.push("You swing around at the air!");
                 }
                 break;
 
@@ -81,6 +96,9 @@ class Game {
                 }
                 break;
         }
+
+        cell.monsters.forEach(monster => monster.attack());
+        // TODO: death
 
         this.step();
     }

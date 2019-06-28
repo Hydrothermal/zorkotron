@@ -85,7 +85,8 @@ function carve(cell, limit) {
 }
 
 class Map {
-    constructor(size) {
+    constructor(game, size) {
+        this.game = game;
         this.size = size;
         this.board = [];
 
@@ -108,9 +109,11 @@ class Map {
                 }
             }
 
-            for (let i = 0; i < 2; i++) {
-                if (cell !== this.start && Math.random() < 0.1) {
-                    cell.monsters.push(new Monster());
+            if (cell !== this.start && Math.random() < 0.15) {
+                cell.monsters.push(new Monster(this.game, cell));
+
+                if(Math.random() < 0.15) {
+                    cell.monsters.push(new Monster(this.game, cell));
                 }
             }
         });
