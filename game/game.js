@@ -1,15 +1,15 @@
 const bot = process.env["cli"] ? require("../discord/botStub.js") : require("../discord/bot.js");
 const { Map } = require("./map.js");
 const { joinList, randRange } = require("../util.js");
-const games = {};
+const games = [];
 const delay = 1000 * 10; // TODO: make configurable
 
 class Game {
-    constructor(message, testing) {
+    constructor(client, testing) {
         let size = 20;
 
         this.delay = testing ? 0 : delay;
-        this.message = message;
+        this.client = client;
         this.inventory = [];
         this.results = [];
         this.hp = 50; // TODO: scale hp with map size
@@ -24,16 +24,21 @@ class Game {
         }
 
         this.map.populate();
-        games[message.id] = this;
+
+        client.game = this;
+        games.push(this);
     }
 
     step() {
         let cell = this.map.player;
         let description = [
-            this.map.visualize(),
             `Current HP: ${this.hp}`,
             `You are standing in ${cell.description}.`
         ];
+
+        if(process.env["cli"]) {
+            description.unshift(this.map.visualize());
+        }
 
         // TODO: write out current inventory
 
@@ -50,14 +55,14 @@ class Game {
         }
 
         description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
-        bot.write(this, description.join("\n\n"));
+        this.client.write(description.join("\n\n"));
 
         this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
         this.results = [];
     }
 
     async runTurn() {
-        const [action] = await bot.getVotes(this);
+        const [action] = await this.client.getVotes();
         let cell = this.map.player;
 
         switch (action) {
@@ -110,8 +115,8 @@ class Game {
 }
 
 function initialize(testing = false) {
-    bot.on("new game", message => {
-        new Game(message, testing).start();
+    bot.on("new game", client => {
+        new Game(client, testing).start();
     });
 }
 
