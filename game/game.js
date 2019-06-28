@@ -41,6 +41,12 @@ class Game {
             );
         }
 
+        if (cell.monsters.length > 0) {
+            description.push(
+                cell.monsters.map(monster => monster.description).join("\n")
+            );
+        }
+
         description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
         bot.write(this, description.join("\n\n"));
 

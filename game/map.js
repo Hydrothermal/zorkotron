@@ -1,5 +1,6 @@
 const { randRange, directions, direction_diffs, reverse } = require("../util.js");
 const { Item } = require("./items.js");
+const { Monster } = require("./monsters.js");
 const generate = require("./generate.js");
 
 class Cell {
@@ -10,6 +11,7 @@ class Cell {
         this.direction = direction;
         this.exits = [];
         this.items = [];
+        this.monsters = [];
     }
 
     connect(cell) {
@@ -105,6 +107,12 @@ class Map {
                     cell.items.push(new Item());
                 }
             }
+
+            for (let i = 0; i < 2; i++) {
+                if (cell !== this.start && Math.random() < 0.1) {
+                    cell.monsters.push(new Monster());
+                }
+            }
         });
     }
 
@@ -138,7 +146,8 @@ class Map {
                     if(cell.exits.includes("north")) { block.push("/  \\"); } else { block.push("/--\\"); }
                     if(cell.exits.includes("west")) { block.push(" "); } else { block.push("|"); }
                     if(cell.items.length > 0) { block[1] += "i"; } else { block[1] += " "; }
-                    if(cell.exits.includes("east")) { block[1] += "  "; } else { block[1] += " |"; }
+                    if(cell.monsters.length > 0) { block[1] += "m"; } else { block[1] += " "; }
+                    if(cell.exits.includes("east")) { block[1] += " "; } else { block[1] += "|"; }
                     if(cell.exits.includes("south")) { block.push("\\  /"); } else { block.push("\\--/"); }
                 } else {
                     block = ["    ", "    ", "    "];
