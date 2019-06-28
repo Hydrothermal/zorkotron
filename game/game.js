@@ -26,13 +26,19 @@ class Game {
 
     step() {
         let cell = this.map.player;
-
-        bot.write(this, [
+        let description = [
             this.map.visualize(),
-            `You are standing in ${cell.description}.`,
-            `Exits: ${cell.exits.join(", ")}.`,
-            this.results.join("\n")
-        ].join("\n\n"));
+            `You are standing in ${cell.description}.`
+        ];
+
+        if (cell.items.length > 0) {
+            description.push(
+                cell.items.map(item => `There is ${item.name} here (${item.type}).`).join("\n")
+            );
+        }
+
+        description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
+        bot.write(this, description.join("\n\n"));
 
         this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
         this.results = [];

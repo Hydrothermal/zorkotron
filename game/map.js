@@ -1,4 +1,5 @@
 const { randRange, directions, direction_diffs, reverse } = require("../util.js");
+const { Item } = require("./items.js");
 const generate = require("./generate.js");
 
 class Cell {
@@ -8,6 +9,7 @@ class Cell {
         this.y = y;
         this.direction = direction;
         this.exits = [];
+        this.items = [];
     }
 
     connect(cell) {
@@ -97,6 +99,12 @@ class Map {
             // sort exits in NESW order
             cell.exits = cell.exits.sort((a, b) => directions.indexOf(a) - directions.indexOf(b));
             cell.description = generate.cell(cell);
+
+            for (let i = 0; i < 2; i++) {
+                if (Math.random() < 0.1) {
+                    cell.items.push(new Item());
+                }
+            }
         });
     }
 
@@ -129,7 +137,8 @@ class Map {
 
                     if(cell.exits.includes("north")) { block.push("/  \\"); } else { block.push("/--\\"); }
                     if(cell.exits.includes("west")) { block.push(" "); } else { block.push("|"); }
-                    if(cell.exits.includes("east")) { block[1] += "   "; } else { block[1] += "  |"; }
+                    if(cell.items.length > 0) { block[1] += "i"; } else { block[1] += " "; }
+                    if(cell.exits.includes("east")) { block[1] += "  "; } else { block[1] += " |"; }
                     if(cell.exits.includes("south")) { block.push("\\  /"); } else { block.push("\\--/"); }
                 } else {
                     block = ["    ", "    ", "    "];
