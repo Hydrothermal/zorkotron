@@ -25,7 +25,6 @@ class Client {
             await this.addReactions("main");
 
             emitter.emit("new game", this);
-            this.inv_message.edit(`Inventory:\n${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].join(")\n")})`);
         } catch (err) {
             console.error(err);
         }

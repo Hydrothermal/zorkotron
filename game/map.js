@@ -164,7 +164,7 @@ class Map {
             }
         }
 
-        return this.board.length + "\n\n" + output.map(row => {
+        return output.map(row => {
             return row.map(cell => cell[0]).join("") + "\n" +
                 row.map(cell => cell[1]).join("") + "\n" +
                 row.map(cell => cell[2]).join("");

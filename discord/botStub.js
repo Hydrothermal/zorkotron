@@ -6,57 +6,68 @@ keypress(process.stdin);
 process.stdin.setRawMode(true);
 process.stdin.resume();
 
-function write(game, text) {
-    console.log("\033[2J");
-    console.log(text);
-}
+class Client {
+    constructor() {
+        emitter.emit("new game", this);
+    }
 
-function getVotes() {
-    return new Promise(resolve => {
-        console.log("Press a key:");
+    getVotes() {
+        return new Promise(resolve => {
+            console.log("Press a key:");
 
-        process.stdin.once("keypress", function (ch, key) {
-            let action;
+            process.stdin.once("keypress", function (ch, key) {
+                let action;
 
-            if (key && key.ctrl & key.name === "c") { process.exit(0); }
-            
-            switch (key.name) {
-                case "up":
-                    action = "north";
-                    break;
+                if (key && key.ctrl & key.name === "c") { process.exit(0); }
+                
+                switch (key.name) {
+                    case "up":
+                        action = "north";
+                        break;
 
-                case "right":
-                    action = "east";
-                    break;
+                    case "right":
+                        action = "east";
+                        break;
 
-                case "down":
-                    action = "south";
-                    break;
+                    case "down":
+                        action = "south";
+                        break;
 
-                case "left":
-                    action = "west";
-                    break;
+                    case "left":
+                        action = "west";
+                        break;
 
-                case "a":
-                    action = "attack";
-                    break;
+                    case "a":
+                        action = "attack";
+                        break;
 
-                case "t":
-                    action = "take";
-                    break;
-            }
+                    case "t":
+                        action = "take";
+                        break;
+                }
 
-            if (action) {
-                resolve([action]);
-            } else {
-                resolve(getVotes());
-            }
+                if (action) {
+                    resolve([action]);
+                } else {
+                    resolve(getVotes());
+                }
+            });
         });
-    });
+    }
+
+    writeInventory(text) {
+        console.log("\x1b[2J");
+        console.log(text);
+    }
+
+    write(text) {
+        console.log("------------------------------");
+        console.log(text);
+    }
 }
 
 function initialize() {
-    emitter.emit("new game", { id: "lol" });
+    new Client();
 }
 
-module.exports = Object.assign(emitter, { initialize, getVotes, write });
+module.exports = Object.assign(emitter, { initialize });

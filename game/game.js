@@ -31,6 +31,7 @@ class Game {
 
     step() {
         let cell = this.map.player;
+        let inventory = ["Your inventory:"];
         let description = [
             `Current HP: ${this.hp}`,
             `You are standing in ${cell.description}.`
@@ -40,7 +41,11 @@ class Game {
             description.unshift(this.map.visualize());
         }
 
-        // TODO: write out current inventory
+        if(this.inventory.length > 0) {
+            inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.name}`))
+        } else {
+            inventory.push("Your inventory is empty.");
+        }
 
         if (cell.items.length > 0) {
             description.push(
@@ -55,6 +60,7 @@ class Game {
         }
 
         description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
+        this.client.writeInventory(inventory.join("\n"));
         this.client.write(description.join("\n\n"));
 
         this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
