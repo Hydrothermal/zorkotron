@@ -29,11 +29,11 @@ class Game {
 
         bot.write(this, [
             this.map.visualize(),
-            cell.description,
+            `You are standing in ${cell.description}.`,
             `Exits: ${cell.exits.join(", ")}.`,
             this.results.join("\n")
         ].join("\n\n"));
-        
+
         this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
         this.results = [];
     }

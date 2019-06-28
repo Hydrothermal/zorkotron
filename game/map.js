@@ -1,4 +1,5 @@
 const { randRange, directions, direction_diffs, reverse } = require("../util.js");
+const generate = require("./generate.js");
 
 class Cell {
     constructor(map, x, y, direction) {
@@ -14,10 +15,10 @@ class Cell {
         cell.exits.push(reverse(cell.direction));
     }
 
-    getRelative(direction) {
+    getRelative(direction, distance) {
         let [x_diff, y_diff] = direction_diffs[direction];
-        let x = this.x + x_diff;
-        let y = this.y + y_diff;
+        let x = this.x + x_diff * (distance || 1);
+        let y = this.y + y_diff * (distance || 1);
 
         if(this.map.ready) {
             return this.map.get(x, y);
@@ -28,10 +29,6 @@ class Cell {
 
     is(x, y) {
         return this.x === x && this.y === y;
-    }
-
-    get description() {
-        return `You are in a room at ${this.toString()}.`;
     }
 
     get neighbors() {
@@ -50,6 +47,12 @@ function carve(cell, limit) {
     let straight = cell.getRelative(cell.direction);
     let free = cell.neighbors.filter(n => !map.get(n.x, n.y));
     let next;
+
+    if(limit === 1 || cell === map.start || Math.random() < 0.1) {
+        cell.type = "room";
+    } else {
+        cell.type = "hallway";
+    }
 
     map.board.push(cell);
 
@@ -90,8 +93,11 @@ class Map {
     }
 
     populate() {
-        // sort all cell exits
-        this.board.forEach(cell => cell.exits = cell.exits.sort((a, b) => directions.indexOf(a) - directions.indexOf(b)));
+        this.board.forEach(cell => {
+            // sort exits in NESW order
+            cell.exits = cell.exits.sort((a, b) => directions.indexOf(a) - directions.indexOf(b));
+            cell.description = generate.cell(cell);
+        });
     }
 
     get(x, y) {
