@@ -10,8 +10,8 @@ const actions = {
     "\u2694": "attack",
     "\ud83d\udec4": "take"
 };
-
 const numbers = ["1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3", "9\u20e3", "\ud83d\udd1f"];
+const delay = 1000 * 10; // TODO: make configurable
 
 class Client {
     async initialize(channel) {
@@ -25,6 +25,7 @@ class Client {
             await this.addReactions("main");
 
             emitter.emit("new game", this);
+            setTimeout(this.getVotes.bind(this), delay);
         } catch (err) {
             console.error(err);
         }
@@ -41,7 +42,8 @@ class Client {
         // TODO: re-add after stepping instead of before
         await this.addReactions("main");
 
-        return votes;
+        this.game.runTurn(votes[0]);
+        setTimeout(this.getVotes.bind(this), delay);
     }
 
     async addReactions(message) {
@@ -61,7 +63,7 @@ class Client {
     }
 
     write(text) {
-        this.main_message.edit("```\n" + text + "\n```");
+        this.main_message.edit("```\n" + text + "\n```\nTaking next action in 10 seconds...");
     }
 }
 

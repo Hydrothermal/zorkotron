@@ -2,13 +2,11 @@ const bot = process.env["cli"] ? require("../discord/botStub.js") : require("../
 const { Map } = require("./map.js");
 const { joinList, randRange } = require("../util.js");
 const games = [];
-const delay = 1000 * 10; // TODO: make configurable
 
 class Game {
-    constructor(client, testing) {
+    constructor(client) {
         let size = 20;
 
-        this.delay = testing ? 0 : delay;
         this.client = client;
         this.inventory = [];
         this.results = [];
@@ -27,6 +25,8 @@ class Game {
 
         client.game = this;
         games.push(this);
+
+        this.step();
     }
 
     step() {
@@ -63,12 +63,10 @@ class Game {
         this.client.writeInventory(inventory.join("\n"));
         this.client.write(description.join("\n\n"));
 
-        this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
         this.results = [];
     }
 
-    async runTurn() {
-        const [action] = await this.client.getVotes();
+    async runTurn(action) {
         let cell = this.map.player;
 
         switch (action) {
@@ -113,16 +111,11 @@ class Game {
 
         this.step();
     }
-
-    start() {
-        console.log("Game started.");
-        this.step();
-    }
 }
 
-function initialize(testing = false) {
+function initialize() {
     bot.on("new game", client => {
-        new Game(client, testing).start();
+        new Game(client);
     });
 }
 

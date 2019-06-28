@@ -8,51 +8,46 @@ process.stdin.resume();
 
 class Client {
     constructor() {
-        emitter.emit("new game", this);
-    }
+        process.stdin.on("keypress", (ch, key) => {
+            let action;
 
-    getVotes() {
-        return new Promise(resolve => {
-            console.log("Press a key:");
+            if (key && key.ctrl & key.name === "c") { process.exit(0); }
+            
+            switch (key.name) {
+                case "up":
+                    action = "north";
+                    break;
 
-            process.stdin.once("keypress", function (ch, key) {
-                let action;
+                case "right":
+                    action = "east";
+                    break;
 
-                if (key && key.ctrl & key.name === "c") { process.exit(0); }
-                
-                switch (key.name) {
-                    case "up":
-                        action = "north";
-                        break;
+                case "down":
+                    action = "south";
+                    break;
 
-                    case "right":
-                        action = "east";
-                        break;
+                case "left":
+                    action = "west";
+                    break;
 
-                    case "down":
-                        action = "south";
-                        break;
+                case "a":
+                    action = "attack";
+                    break;
 
-                    case "left":
-                        action = "west";
-                        break;
+                case "t":
+                    action = "take";
+                    break;
+            }
 
-                    case "a":
-                        action = "attack";
-                        break;
-
-                    case "t":
-                        action = "take";
-                        break;
-                }
-
-                if (action) {
-                    resolve([action]);
-                } else {
-                    resolve(getVotes());
-                }
-            });
+            if (action) {
+                this.game.runTurn(action);
+                console.log("Press a key:");
+            } else {
+                console.log("Press a key:");
+            }
         });
+        
+        emitter.emit("new game", this);
     }
 
     writeInventory(text) {
