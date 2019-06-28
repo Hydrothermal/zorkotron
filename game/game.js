@@ -75,10 +75,12 @@ class Game {
             case "south":
             case "west":
                 if(cell.exits.includes(action)) {
+                    let monsters = cell.monsters;
+
                     this.results.push(`You moved ${action}.`);
                     this.map.player = cell = cell.getRelative(action);
 
-                    // TODO: monster following
+                    monsters.forEach(monster => monster.followTo(cell));
                 } else {
                     this.results.push(`You can't go ${action}.`);
                 }
