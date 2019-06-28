@@ -10,6 +10,10 @@ Array.prototype.random = function() {
     return this[Math.floor(Math.random() * this.length)];
 };
 
+Array.prototype.pullRandom = function() {
+    return this.splice(Math.floor(Math.random() * this.length), 1)[0];
+};
+
 function joinList(arr) {
     let list;
 

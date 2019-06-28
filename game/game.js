@@ -35,7 +35,7 @@ class Game {
         let inventory = ["Your inventory:"];
         let description = [
             `You are a level ${this.level} adventurer. Current HP: ${this.hp}`,
-            `You are standing in ${cell.description}.`
+            `You are standing in ${cell.description}`
         ];
 
         if(process.env["cli"]) {
