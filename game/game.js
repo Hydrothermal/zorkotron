@@ -10,7 +10,6 @@ class Game {
         this.client = client;
         this.inventory = [];
         this.results = [];
-        this.hp = 50; // TODO: scale hp with map size
         this.map = new Map(this, size);
 
         for (let i = 0; i < 10; i++) {
@@ -21,6 +20,8 @@ class Game {
             }
         }
 
+        this.level = Math.floor(this.map.board.length / 5);
+        this.hp = 25 + this.level * 3;
         this.map.populate();
 
         client.game = this;
@@ -33,7 +34,7 @@ class Game {
         let cell = this.map.player;
         let inventory = ["Your inventory:"];
         let description = [
-            `Current HP: ${this.hp}`,
+            `You are a level ${this.level} adventurer. Current HP: ${this.hp}`,
             `You are standing in ${cell.description}.`
         ];
 
