@@ -10,7 +10,7 @@ const monsters = [
         follow_chance: 0.25,
         attack_str: "claws at you",
         miss_str: "swings at you, but misses",
-        damage: [4, 7],
+        damage: [3, 6],
         death_str: "falls to the ground"
     },
     {
@@ -22,7 +22,7 @@ const monsters = [
         follow_chance: 0,
         attack_str: "claws at you",
         miss_str: "swings at you, but misses",
-        damage: [3, 6],
+        damage: [1, 4],
         death_str: "falls to the ground"
     },
     {
@@ -46,7 +46,7 @@ const monsters = [
         follow_chance: 0.5,
         attack_str: "swings its sword at you",
         miss_str: "narrowly misses with its sword",
-        damage: [5, 6],
+        damage: [3, 5],
         death_str: "crumbles to dust"
     },
     {
@@ -59,7 +59,7 @@ const monsters = [
         follow_chance: 0,
         attack_str: "slaps you",
         miss_str: "wobbles around aimlessly",
-        damage: [2, 3],
+        damage: [0, 2],
         death_str: "melts into the floor"
     },
     {
@@ -71,7 +71,7 @@ const monsters = [
         follow_chance: 0.5,
         attack_str: "bites you",
         miss_str: "leaps past you",
-        damage: [8, 9],
+        damage: [4, 9],
         death_str: "falls on its back and curls up"
     },
     {
@@ -96,7 +96,7 @@ const monsters = [
         follow_chance: 0.8,
         attack_str: "bites you",
         miss_str: "flaps around your head",
-        damage: [2, 3],
+        damage: [0, 2],
         death_str: "drops to the ground and dies"
     }
 ];
