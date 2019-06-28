@@ -5,9 +5,19 @@ const delay = 1000 * 10; // TODO: make configurable
 
 class Game {
     constructor(message, testing) {
+        let size = 20;
+
         this.delay = testing ? 0 : delay;
         this.message = message;
-        this.map = new Map(20);
+        this.map = new Map(size);
+
+        for (let i = 0; i < 10; i++) {
+            let map = new Map(size);
+
+            if(map.board.length > this.map.board.length && map.board.length <= size * 2) {
+                this.map = map;
+            }
+        }
 
         games[message.id] = this;
     }
