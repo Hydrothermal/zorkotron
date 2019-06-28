@@ -31,7 +31,7 @@ class Cell {
     }
 
     get description() {
-        return `${this.map.visualize()}\n\nYou are in a room at ${this.toString()}.\n\nExits: ${this.exits.join(", ")}.`;
+        return `You are in a room at ${this.toString()}.`;
     }
 
     get neighbors() {
@@ -87,6 +87,11 @@ class Map {
         
         carve(this.start, size);
         this.ready = true;
+    }
+
+    populate() {
+        // sort all cell exits
+        this.board.forEach(cell => cell.exits = cell.exits.sort((a, b) => directions.indexOf(a) - directions.indexOf(b)));
     }
 
     get(x, y) {

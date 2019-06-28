@@ -9,6 +9,7 @@ class Game {
 
         this.delay = testing ? 0 : delay;
         this.message = message;
+        this.results = [];
         this.map = new Map(size);
 
         for (let i = 0; i < 10; i++) {
@@ -19,13 +20,27 @@ class Game {
             }
         }
 
+        this.map.populate();
         games[message.id] = this;
     }
 
-    async step() {
+    step() {
+        let cell = this.map.player;
+
+        bot.write(this, [
+            this.map.visualize(),
+            cell.description,
+            `Exits: ${cell.exits.join(", ")}.`,
+            this.results.join("\n")
+        ].join("\n\n"));
+        
+        this.step_clock = setTimeout(this.runTurn.bind(this), this.delay);
+        this.results = [];
+    }
+
+    async runTurn() {
         const [action] = await bot.getVotes(this);
         let cell = this.map.player;
-        let result;
 
         switch (action) {
             case "north":
@@ -33,23 +48,20 @@ class Game {
             case "south":
             case "west":
                 if(cell.exits.includes(action)) {
-                    result = `You moved ${action}.`;
+                    this.results.push(`You moved ${action}.`);
                     this.map.player = cell = cell.getRelative(action);
                 } else {
-                    result = `You can't go ${action}.`;
+                    this.results.push(`You can't go ${action}.`);
                 }
                 break;
         }
-        
-        bot.write(this, cell.description + "\n\n" + result);
-        this.step_clock = setTimeout(this.step.bind(this), this.delay);
+
+        this.step();
     }
 
     start() {
         console.log("Game started.");
-        
-        bot.write(this, this.map.player.description);
-        this.step_clock = setTimeout(this.step.bind(this), this.delay);
+        this.step();
     }
 }
 
