@@ -16,6 +16,7 @@ const delay = 1000 * 10; // TODO: make configurable
 class Client {
     async initialize(channel) {
         try {
+            this.channel = channel;
             this.inv_message = await channel.send("Creating a new game...");
             this.main_message = await channel.send("Creating a new game...");
             
@@ -24,6 +25,7 @@ class Client {
             await this.addReactions("inventory");
             await this.addReactions("main");
 
+            this.status = "Game created! Taking next action in 10 seconds...";
             emitter.emit("new game", this);
             setTimeout(this.getVotes.bind(this), delay);
         } catch (err) {
@@ -32,18 +34,16 @@ class Client {
     }
 
     async getVotes() {
-        let votes = this.main_message.reactions
+        let votes = (await this.channel.fetchMessage(this.main_message.id)).reactions
             .filter((reaction, emoji) => actions[emoji] && reaction.count > 1)
-            .sort((a, b) => b.count - a.count)
-            .map((reaction, emoji) => actions[emoji]);
+            .sort((a, b) => b.count - a.count);
+        let action = votes.map((reaction, emoji) => actions[emoji])[0];
         
-        // TODO: remove one at a time if there are few enough reactions it's more efficient
-        await this.main_message.clearReactions().catch(err => { });
-        // TODO: re-add after stepping instead of before
-        await this.addReactions("main");
+        this.status = "Loading...";
+        this.game.runTurn(action);
 
-        this.game.runTurn(votes[0]);
-        setTimeout(this.getVotes.bind(this), delay);
+        await Promise.all(votes.map(reaction => reaction.fetchUsers()));
+        this.cleanVotes(votes);
     }
 
     async addReactions(message) {
@@ -58,12 +58,36 @@ class Client {
         }
     }
 
+    async cleanVotes(votes) {
+        let reaction_count = votes.reduce((count, reaction) => count + reaction.users.size - 1, 0);
+
+        // remove individual users if there aren't too many
+        if(reaction_count < 10) {
+            await Promise.all(votes.map(
+                async reaction => Promise.all(reaction.users.map(user => {
+                    if(user !== client.user) {
+                        return reaction.remove(user);
+                    }
+                }))
+            ));
+        } else {
+            await this.main_message.clearReactions().catch(err => { });
+            await this.addReactions("main");
+        }
+
+        this.status = "Taking next action in 10 seconds...";
+        this.write();
+
+        setTimeout(this.getVotes.bind(this), delay);
+    }
+
     writeInventory(text) {
         this.inv_message.edit("```\n" + text + "\n```");
     }
 
     write(text) {
-        this.main_message.edit("```\n" + text + "\n```\nTaking next action in 10 seconds...");
+        text = this.text = text || this.text;
+        this.main_message.edit("```\n" + text + "\n```\n" + this.status);
     }
 }
 
