@@ -95,7 +95,8 @@ class Map {
 
     visualize() {
         let w = [], h = [];
-        let output = "";
+        let output = [];
+        let row;
 
         this.board.forEach(cell => { w.push(cell.x); h.push(cell.y); });
 
@@ -105,20 +106,37 @@ class Map {
         let y_max = Math.max(...h);
 
         for (let y = y_min; y <= y_max; y++) {
-            for (let x = x_min; x <= x_max; x++) {
-                if (this.player.is(x, y)) {
-                    output += "[+]";
-                } else if (this.get(x, y)) {
-                    output += "[ ]";
-                } else {
-                    output += "   ";
-                }
-            }
+            row = [];
+            output.push(row);
 
-            output += "\n";
+            for (let x = x_min; x <= x_max; x++) {
+                let cell = this.get(x, y);
+                let block;
+
+                if (cell) {
+                    block = [];
+
+                    if(cell.exits.includes("north")) { block.push("/  \\"); } else { block.push("/--\\"); }
+                    if(cell.exits.includes("west")) { block.push(" "); } else { block.push("|"); }
+                    if(cell.exits.includes("east")) { block[1] += "   "; } else { block[1] += "  |"; }
+                    if(cell.exits.includes("south")) { block.push("\\  /"); } else { block.push("\\--/"); }
+                } else {
+                    block = ["    ", "    ", "    "];
+                }
+
+                if (this.player.is(x, y)) {
+                    block = block.map(str => `\x1b[36m${str}\x1b[0m`);
+                }
+
+                row.push(block);
+            }
         }
 
-        return output;
+        return output.map(row => {
+            return row.map(cell => cell[0]).join("") + "\n" +
+                row.map(cell => cell[1]).join("") + "\n" +
+                row.map(cell => cell[2]).join("");
+        }).join("\n");
     }
 }
 
