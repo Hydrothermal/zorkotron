@@ -11,6 +11,7 @@ const actions = {
     "\ud83d\udec4": "take"
 };
 const numbers = ["1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3", "9\u20e3", "\ud83d\udd1f"];
+const game_clients = {};
 const delay = 1000 * 10; // TODO: make configurable
 
 class Client {
@@ -19,21 +20,25 @@ class Client {
             this.channel = channel;
             this.inv_message = await channel.send("Creating a new game...");
             this.main_message = await channel.send("Creating a new game...");
-            
+
             // these can be done asynchronously but discord throttles to one
             // reaction at a time anyway, so we might as well do them in order
             await this.addReactions("inventory");
             await this.addReactions("main");
 
             this.status = "Game created! Taking next action in 10 seconds...";
+            this.timer = setTimeout(this.getVotes.bind(this), delay);
+            
+            game_clients[channel.id] = this;
             emitter.emit("new game", this);
-            setTimeout(this.getVotes.bind(this), delay);
         } catch (err) {
             console.error(err);
         }
     }
 
     async getVotes() {
+        if (this.done) { return; }
+
         let votes = (await this.channel.fetchMessage(this.main_message.id)).reactions
             .filter((reaction, emoji) => actions[emoji] && reaction.count > 1)
             .sort((a, b) => b.count - a.count);
@@ -71,14 +76,14 @@ class Client {
                 }))
             ));
         } else {
-            await this.main_message.clearReactions().catch(err => { });
+            await this.main_message.clearReactions();
             await this.addReactions("main");
         }
 
         this.status = "Taking next action in 10 seconds...";
         this.write();
 
-        setTimeout(this.getVotes.bind(this), delay);
+        this.timer = setTimeout(this.getVotes.bind(this), delay);
     }
 
     writeInventory(text) {
@@ -88,6 +93,17 @@ class Client {
     write(text) {
         text = this.text = text || this.text;
         this.main_message.edit("```\n" + text + "\n```\n" + this.status);
+    }
+
+    destroy(message_a, message_b) {
+        clearTimeout(this.timer);
+        this.done = true;
+
+        this.inv_message.clearReactions();
+        this.inv_message.edit(message_a);
+
+        this.main_message.clearReactions();
+        this.main_message.edit(message_b);
     }
 }
 
@@ -104,13 +120,22 @@ function initialize() {
     });
 
     client.on("message", message => {
+        let channel = message.channel;
+        let current = game_clients[channel.id];
+
         switch (message.content) {
             case "!start":
-                postNewGame(message.channel);
+                if (current) {
+                    message.channel.send("A game is already running in this channel. Use !end to end it.")
+                } else {
+                    postNewGame(message.channel);
+                }
                 break;
 
             case "!end":
-                // end ongoing game
+                if (current) {
+                    current.game.end();
+                }
                 break;
         }
     });

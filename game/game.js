@@ -31,40 +31,44 @@ class Game {
     }
 
     step() {
-        let cell = this.map.player;
-        let inventory = ["Your inventory:"];
-        let description = [
-            `You are a level ${this.level} adventurer. Current HP: ${this.hp}`,
-            `You are standing in ${cell.description}`
-        ];
-
-        if(process.env["cli"]) {
-            description.unshift(this.map.visualize());
-        }
-
-        if(this.inventory.length > 0) {
-            inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.name}`))
+        if(this.hp <= 0) {
+            this.end();
         } else {
-            inventory.push("Your inventory is empty.");
+            let cell = this.map.player;
+            let inventory = ["Your inventory:"];
+            let description = [
+                `You are a level ${this.level} adventurer. Current HP: ${this.hp}`,
+                `You are standing in ${cell.description}`
+            ];
+
+            if(process.env["cli"]) {
+                description.unshift(this.map.visualize());
+            }
+
+            if(this.inventory.length > 0) {
+                inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.name}`))
+            } else {
+                inventory.push("Your inventory is empty.");
+            }
+
+            if (cell.items.length > 0) {
+                description.push(
+                    cell.items.map(item => `There is ${item.name} here (${item.type}).`).join("\n")
+                );
+            }
+
+            if (cell.monsters.length > 0) {
+                description.push(
+                    cell.monsters.map(monster => monster.description).join("\n")
+                );
+            }
+
+            description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
+            this.client.writeInventory(inventory.join("\n"));
+            this.client.write(description.join("\n\n"));
+
+            this.results = [];
         }
-
-        if (cell.items.length > 0) {
-            description.push(
-                cell.items.map(item => `There is ${item.name} here (${item.type}).`).join("\n")
-            );
-        }
-
-        if (cell.monsters.length > 0) {
-            description.push(
-                cell.monsters.map(monster => monster.description).join("\n")
-            );
-        }
-
-        description.push(`Exits: ${cell.exits.join(", ")}.`, this.results.join("\n"));
-        this.client.writeInventory(inventory.join("\n"));
-        this.client.write(description.join("\n\n"));
-
-        this.results = [];
     }
 
     async runTurn(action) {
@@ -110,9 +114,15 @@ class Game {
         }
 
         cell.monsters.forEach(monster => monster.attack());
-        // TODO: death
 
         this.step();
+    }
+
+    end() {
+        let gold = this.inventory.filter(item => item.type === "valuable").reduce((sum, item) => sum + item.amount, 0);
+        let summary = `You were a level ${this.level} adventurer carrying ${gold} worth of items.`;
+
+        this.client.destroy("Game over.", `You lost. `);
     }
 }
 

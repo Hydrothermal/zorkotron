@@ -41,7 +41,10 @@ class Client {
 
             if (action) {
                 this.game.runTurn(action);
-                console.log("Press a key:");
+
+                if (!this.done) {
+                    console.log("Press a key:");
+                }
             } else {
                 console.log("Press a key:");
             }
@@ -58,6 +61,12 @@ class Client {
     write(text) {
         console.log("------------------------------");
         console.log(text);
+    }
+
+    destroy(message_a, message_b) {
+        this.done = true;
+        this.writeInventory(`${message_a}\n\n${message_b}`)
+        process.stdin.pause();
     }
 }
 
