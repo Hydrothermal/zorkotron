@@ -73,6 +73,7 @@ class Game {
 
     async runTurn(action, item_num) {
         let cell = this.map.player;
+        let item;
 
         switch (action) {
             case "north":
@@ -119,12 +120,23 @@ class Game {
 
             // items
             case "use":
-                let item = this.inventory[item_num - 1];
+                item = this.inventory[item_num - 1];
 
                 if (item) {
                     item.use();
                 } else {
-                    this.results.push(`You don't have an item in slot ${action}.`);
+                    this.results.push(`You don't have an item in slot ${item_num}.`);
+                }
+                break;
+
+            case "drop":
+                item = this.inventory[item_num - 1];
+
+                if (item) {
+                    cell.items.push(this.inventory.splice(this.inventory.indexOf(item), 1)[0]);
+                    this.results.push(`You dropped ${item.name}.`);
+                } else {
+                    this.results.push(`You don't have an item in slot ${item_num}.`);
                 }
                 break;
         }

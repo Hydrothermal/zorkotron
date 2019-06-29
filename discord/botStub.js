@@ -2,6 +2,8 @@ const keypress = require("keypress");
 const { EventEmitter } = require("events");
 const emitter = new EventEmitter();
 
+const drop = ["q", "w", "e", "r", "t", "y", "u", "i", "o", "p"];
+
 keypress(process.stdin);
 process.stdin.setRawMode(true);
 process.stdin.resume();
@@ -34,13 +36,18 @@ class Client {
                     action = "attack";
                     break;
 
-                case "t":
+                case "g":
                     action = "take";
                     break;
 
                 case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "0":
                     action = "use";
                     item_num = ch === "0" ? "10" : ch;
+                    break;
+
+                case "q": case "w": case "e": case "r": case "t": case "y": case "u": case "i": case "o": case "p":
+                    action = "drop";
+                    item_num = drop.indexOf(key.name) + 1;
                     break;
             }
 
