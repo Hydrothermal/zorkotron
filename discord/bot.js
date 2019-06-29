@@ -3,12 +3,14 @@ const events = require("events");
 const emitter = module.exports = new events.EventEmitter();
 const client = new discord.Client();
 const actions = {
-    "\u2b06": "north",
-    "\u27a1": "east",
-    "\u2b07": "south",
-    "\u2b05": "west",
-    "\u2694": "attack",
-    "\ud83d\udec4": "take"
+    "north:594388478108631040": "north",
+    "east:594388477983064083": "east",
+    "south:594388477987127296": "south",
+    "west:594388478079270943": "west",
+    "attack:594383579237056522": "attack",
+    "take:594383579207696384": "take",
+    "use:594383579228930068": "use",
+    "drop:594383579048312843": "drop"
 };
 const numbers = ["1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3", "9\u20e3", "\ud83d\udd1f"];
 const game_clients = {};
