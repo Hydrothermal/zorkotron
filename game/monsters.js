@@ -152,6 +152,9 @@ class Monster {
     die() {
         this.removeFromCell();
         this.game.results.push(`The ${this.name} ${this.death_str}!`);
+        this.game.level++;
+        this.game.hp += 3;
+        this.game.maxhp += 3;
     }
 }
 
