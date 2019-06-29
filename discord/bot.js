@@ -156,11 +156,13 @@ function initialize() {
 
         let channel = message.channel;
         let current = game_clients[channel.id];
-        let args = message.content.split(" ");
+        let args = message.content.toLowerCase().split(" ");
 
         switch (args[0]) {
             case "z!start":
-                if (current) {
+                if (message.channel.id === "594411460617175041") {
+                    message.channel.send("Please use the #z9k channels for testing!");
+                } else if (current) {
                     message.channel.send("A game is already running in this channel. Use !end to end it.")
                 } else {
                     let size = parseInt(args[1] || 20);
@@ -188,7 +190,7 @@ function initialize() {
                 break;
 
             case "z!help":
-                message.channel.send("**Zorkotron 9000** is a procedurally generated text adventure bot. Any number of members can use reactions to vote on what action to take each turn. The goal is to roam through the dungeon, killing monsters and collecting valuables until you find the legendary Amulet of Wumpus. Use `z!start (map size) (delay)` to begin a new adventure. The default size is 20 (between 15 and 50 is recommended) and the default delay between actions is 15 seconds. Use `z!end` to end an ongoing game or `z!help` to view this message.\n\nCreated by: <@77258555295543296>, <@177019589010522112>, <@223264867526639616>.\nEmoji icons courtesy of https://icons8.com/.");
+                message.channel.send("**Zorkotron 9000** is a procedurally generated text adventure bot. Any number of members can use reactions to vote on what action to take each turn. The goal is to roam through the dungeon, killing monsters and collecting valuables until you find the legendary Amulet of Wumpus. Use `z!start (map size) (delay)` to begin a new adventure. The default size is 20 (between 15 and 50 is recommended) and the default delay between actions is 15 seconds. Use `z!end` to end an ongoing game or `z!help` to view this message.\n\nGitHub link: https://github.com/Hydrothermal/zorkotron\nCreated by: Hydrothermal#1234, baz#1981, Nightfall9931.\nEmoji icons courtesy of https://icons8.com/.");
                 break;
         }
     });
