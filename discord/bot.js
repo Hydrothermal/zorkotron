@@ -12,7 +12,18 @@ const actions = {
     "use:594383579228930068": "use",
     "drop:594383579048312843": "drop"
 };
-const numbers = ["1\u20e3", "2\u20e3", "3\u20e3", "4\u20e3", "5\u20e3", "6\u20e3", "7\u20e3", "8\u20e3", "9\u20e3", "\ud83d\udd1f"];
+const numbers = {
+    "1\u20e3": "1",
+    "2\u20e3": "2"/*,
+    "3\u20e3": "3",
+    "4\u20e3": "4",
+    "5\u20e3": "5",
+    "6\u20e3": "6",
+    "7\u20e3": "7",
+    "8\u20e3": "8",
+    "9\u20e3": "9",
+    "\ud83d\udd1f": "10"*/
+};
 const game_clients = {};
 const delay = 1000 * 10; // TODO: make configurable
 
@@ -29,7 +40,7 @@ class Client {
             await this.addReactions("main");
 
             this.status = "Game created! Taking next action in 10 seconds...";
-            this.timer = setTimeout(this.getVotes.bind(this), delay);
+            this.timer = setTimeout(this.step.bind(this), delay);
             
             game_clients[channel.id] = this;
             emitter.emit("new game", this);
@@ -38,19 +49,37 @@ class Client {
         }
     }
 
-    async getVotes() {
+    async getVotedAction(message, set) {
+        let votes = (await this.channel.fetchMessage(message.id)).reactions
+            .filter((reaction, emoji) => set[emoji] && reaction.count > 1)
+            .sort((a, b) => b.count - a.count);
+
+        let clean_promise = Promise.all(votes.map(reaction => reaction.fetchUsers()))
+            .then(this.cleanVotes.bind(this, votes));
+
+        return [clean_promise, votes.map((reaction, emoji) => set[emoji])[0]];
+    }
+
+    async step() {
         if (this.done) { return; }
 
-        let votes = (await this.channel.fetchMessage(this.main_message.id)).reactions
-            .filter((reaction, emoji) => actions[emoji] && reaction.count > 1)
-            .sort((a, b) => b.count - a.count);
-        let action = votes.map((reaction, emoji) => actions[emoji])[0];
-        
-        this.status = "Loading...";
-        this.game.runTurn(action);
+        let [clean_promise, action] = await this.getVotedAction(this.main_message, actions);
+        let clean_set = [clean_promise];
+        let item_num;
 
-        await Promise.all(votes.map(reaction => reaction.fetchUsers()));
-        this.cleanVotes(votes);
+        if (action === "use" || action === "drop") {
+            [clean_promise, item_num] = await this.getVotedAction(this.inv_message, numbers);
+            clean_set.push(clean_promise);
+        } else {
+            // if we're not interacting with an item, we can clean the votes asynchronously
+            this.getVotedAction(this.inv_message, numbers);
+        }
+
+        this.status = "Loading...";
+        this.game.runTurn(action, item_num);
+
+        await Promise.all(clean_set);
+        this.timer = setTimeout(this.step.bind(this), delay);
     }
 
     async addReactions(message) {
@@ -59,8 +88,8 @@ class Client {
                 await this.main_message.react(emoji);
             }
         } else {
-            for (let i = 0; i < numbers.length; i++) {
-                await this.inv_message.react(numbers[i]);
+            for (let number in numbers) {
+                await this.inv_message.react(number);
             }
         }
     }
@@ -84,8 +113,6 @@ class Client {
 
         this.status = "Taking next action in 10 seconds...";
         this.write();
-
-        this.timer = setTimeout(this.getVotes.bind(this), delay);
     }
 
     writeInventory(text) {
