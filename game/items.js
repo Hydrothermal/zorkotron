@@ -26,7 +26,9 @@ class Item {
 
         this.game = game;
         this.name = name;
+
         Object.assign(this, details);
+        this.description = `There is ${this.name} here (${this.type}).`;
     }
 
     use() {
@@ -41,7 +43,7 @@ class Item {
         }
     }
 
-    get description() {
+    get note() {
         let note;
 
         switch (this.type) {

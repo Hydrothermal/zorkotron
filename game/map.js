@@ -117,6 +117,15 @@ class Map {
                 }
             }
         });
+
+        let amulet = new Item(this.game);
+        amulet.name = "The Amulet of Wumpus";
+        amulet.type = "valuable";
+        amulet.amount = 50;
+        amulet.description = "**The Amulet of Wumpus lies here, sparkling in its glory...**";
+
+        // select a random cell further away from the start
+        this.board.slice(Math.ceil(this.board.length / 2)).random().items.push(amulet);
     }
 
     get(x, y) {
@@ -148,7 +157,13 @@ class Map {
 
                     if(cell.exits.includes("north")) { block.push("/  \\"); } else { block.push("/--\\"); }
                     if(cell.exits.includes("west")) { block.push(" "); } else { block.push("|"); }
-                    if(cell.items.length > 0) { block[1] += "i"; } else { block[1] += " "; }
+                    if(cell.items.length > 0) {
+                        if(cell.items.find(item => item.name === "The Amulet of Wumpus")) {
+                            block[1] += "A";
+                        } else {
+                            block[1] += "i";
+                        }
+                    } else { block[1] += " "; }
                     if(cell.monsters.length > 0) { block[1] += "m"; } else { block[1] += " "; }
                     if(cell.exits.includes("east")) { block[1] += " "; } else { block[1] += "|"; }
                     if(cell.exits.includes("south")) { block.push("\\  /"); } else { block.push("\\--/"); }

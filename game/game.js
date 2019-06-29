@@ -46,14 +46,14 @@ class Game {
             }
 
             if(this.inventory.length > 0) {
-                inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.description}`))
+                inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.note}`))
             } else {
                 inventory.push("Your inventory is empty.");
             }
 
             if (cell.items.length > 0) {
                 description.push(
-                    cell.items.map(item => `There is ${item.name} here (${item.type}).`).join("\n")
+                    cell.items.map(item => item.description).join("\n")
                 );
             }
 
@@ -111,6 +111,12 @@ class Game {
                     } else {
                         this.results.push(`You took ${joinList(cell.items.map(item => item.name))}.`);
                         this.inventory.push(...cell.items);
+
+                        if(cell.items.find(item => item.name === "The Amulet of Wumpus")) {
+                            this.end(true);
+                            return;
+                        }
+
                         cell.items = [];
                     }
                 } else {
@@ -146,11 +152,15 @@ class Game {
         this.step();
     }
 
-    end() {
+    end(win) {
         let gold = this.inventory.filter(item => item.type === "valuable").reduce((sum, item) => sum + item.amount, 0);
-        let summary = `You were a level ${this.level} adventurer carrying ${gold} worth of items.`;
+        let summary = `You were a level ${this.level} adventurer carrying ${gold} gold worth of items.`;
 
-        this.client.destroy("Game over.", `You lost. `);
+        if(win) {
+            this.client.destroy("You won!", `You have recovered the Amulet of Wumpus. ${summary}`);
+        } else {
+            this.client.destroy("Game over.", `You lost. ${summary}`);
+        }
     }
 }
 
