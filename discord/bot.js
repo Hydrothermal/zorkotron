@@ -71,18 +71,21 @@ class Client {
         let clean_set = [clean_promise];
         let item_num;
 
-        if (action === "use" || action === "drop") {
-            [clean_promise, item_num] = await this.getVotedAction(this.inv_message, numbers);
-            clean_set.push(clean_promise);
-        } else {
-            // if we're not interacting with an item, we can clean the votes asynchronously
-            this.getVotedAction(this.inv_message, numbers);
+        if(action) {
+            if (action === "use" || action === "drop") {
+                [clean_promise, item_num] = await this.getVotedAction(this.inv_message, numbers);
+                clean_set.push(clean_promise);
+            } else {
+                // if we're not interacting with an item, we can clean the votes asynchronously
+                this.getVotedAction(this.inv_message, numbers);
+            }
+
+            this.status = "Loading...";
+            this.game.runTurn(action, item_num);
+
+            await Promise.all(clean_set);
         }
 
-        this.status = "Loading...";
-        this.game.runTurn(action, item_num);
-
-        await Promise.all(clean_set);
         this.timer = setTimeout(this.step.bind(this), this.delay * 1000);
     }
 

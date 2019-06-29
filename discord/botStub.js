@@ -62,7 +62,7 @@ class Client {
             }
         });
         
-        emitter.emit("new game", this);
+        emitter.emit("new game", this, 20);
     }
 
     writeInventory(text) {
