@@ -21,7 +21,7 @@ class Game {
         }
 
         this.level = Math.floor(this.map.board.length / 5);
-        this.hp = 25 + this.level * 3;
+        this.hp = this.maxhp = 25 + this.level * 3;
         this.map.populate();
 
         client.game = this;
@@ -37,7 +37,7 @@ class Game {
             let cell = this.map.player;
             let inventory = ["Your inventory:"];
             let description = [
-                `You are a level ${this.level} adventurer. Current HP: ${this.hp}`,
+                `You are a level ${this.level} adventurer. Current HP: ${this.hp}/${this.maxhp}`,
                 `You are standing in ${cell.description}`
             ];
 
@@ -46,7 +46,7 @@ class Game {
             }
 
             if(this.inventory.length > 0) {
-                inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.name}`))
+                inventory.push(...this.inventory.map((item, i) => `${i + 1}) ${item.description}`))
             } else {
                 inventory.push("Your inventory is empty.");
             }
@@ -71,7 +71,7 @@ class Game {
         }
     }
 
-    async runTurn(action) {
+    async runTurn(action, item_num) {
         let cell = this.map.player;
 
         switch (action) {
@@ -104,11 +104,27 @@ class Game {
 
             case "take":
                 if(cell.items.length > 0) {
-                    this.results.push(`You took ${joinList(cell.items.map(item => item.name))}.`);
-                    this.inventory.push(...cell.items);
-                    cell.items = [];
+                    if(this.inventory.length + cell.items.length > 10) {
+                        // TODO: take enough items to fill inventory
+                        this.results.push("You don't have enough room in your inventory.");
+                    } else {
+                        this.results.push(`You took ${joinList(cell.items.map(item => item.name))}.`);
+                        this.inventory.push(...cell.items);
+                        cell.items = [];
+                    }
                 } else {
                     this.results.push("There isn't anything to pick up here.");
+                }
+                break;
+
+            // items
+            case "use":
+                let item = this.inventory[item_num - 1];
+
+                if (item) {
+                    item.use();
+                } else {
+                    this.results.push(`You don't have an item in slot ${action}.`);
                 }
                 break;
         }

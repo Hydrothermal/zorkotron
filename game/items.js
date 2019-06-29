@@ -10,27 +10,34 @@ const items = [
     ["a cold biscuit",      { type: "food", amount: 2, usable: true }],
     ["an old apple",        { type: "food", amount: 3, usable: true }],
     ["a potato",            { type: "food", amount: 3, usable: true }],
-    ["an avocado",          { type: "food", amount: 4, usable: true }],
-    ["a chocolate bar",     { type: "food", amount: 4, usable: true }],
-    ["peanut brittle",      { type: "food", amount: 4, usable: true }],
-    ["a slice of pie",      { type: "food", amount: 5, usable: true }],
-    ["a turkey leg",        { type: "food", amount: 6, usable: true }],
-    ["a loaf of bread",     { type: "food", amount: 6, usable: true }],
-    ["a roasted rabbit",    { type: "food", amount: 6, usable: true }],
-    ["a bowl of stew",      { type: "food", amount: 8, usable: true }]
+    ["an avocado",          { type: "food", amount: 5, usable: true }],
+    ["a chocolate bar",     { type: "food", amount: 5, usable: true }],
+    ["peanut brittle",      { type: "food", amount: 5, usable: true }],
+    ["a slice of pie",      { type: "food", amount: 7, usable: true }],
+    ["a turkey leg",        { type: "food", amount: 8, usable: true }],
+    ["a loaf of bread",     { type: "food", amount: 8, usable: true }],
+    ["a roasted rabbit",    { type: "food", amount: 9, usable: true }],
+    ["a bowl of stew",      { type: "food", amount: 10, usable: true }]
 ];
 
 class Item {
-    constructor() {
+    constructor(game) {
         let [name, details] = items.random();
 
+        this.game = game;
         this.name = name;
         Object.assign(this, details);
     }
 
     use() {
+        let game = this.game;
+        
         if (this.type === "food") {
-            // heal for this.amount
+            game.hp = Math.min(game.maxhp, game.hp + this.amount);
+            game.inventory.splice(game.inventory.indexOf(this), 1);
+            game.results.push(`You ate ${this.name} and regained ${this.amount} hp.`);
+        } else {
+            game.results.push(`You can't use ${this.name}!`);
         }
     }
 
@@ -39,11 +46,11 @@ class Item {
 
         switch (this.type) {
             case "valuable":
-                note = `sells for ${this.amount}`;
+                note = `worth ${this.amount} gold`;
                 break;
 
             case "food":
-                note = `heals for ${this.amount}`;
+                note = `heals for ${this.amount} hp`;
                 break;
         }
 

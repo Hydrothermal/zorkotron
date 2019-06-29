@@ -105,7 +105,7 @@ class Map {
 
             for (let i = 0; i < 2; i++) {
                 if (Math.random() < 0.1) {
-                    cell.items.push(new Item());
+                    cell.items.push(new Item(this.game));
                 }
             }
 

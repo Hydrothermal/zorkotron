@@ -9,11 +9,11 @@ process.stdin.resume();
 class Client {
     constructor() {
         process.stdin.on("keypress", (ch, key) => {
-            let action;
+            let action, item_num;
 
             if (key && key.ctrl & key.name === "c") { process.exit(0); }
-            
-            switch (key.name) {
+
+            switch (key ? key.name : ch) {
                 case "up":
                     action = "north";
                     break;
@@ -37,10 +37,15 @@ class Client {
                 case "t":
                     action = "take";
                     break;
+
+                case "1": case "2": case "3": case "4": case "5": case "6": case "7": case "8": case "9": case "0":
+                    action = "use";
+                    item_num = ch === "0" ? "10" : ch;
+                    break;
             }
 
             if (action) {
-                this.game.runTurn(action);
+                this.game.runTurn(action, item_num);
 
                 if (!this.done) {
                     console.log("Press a key:");
