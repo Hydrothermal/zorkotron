@@ -131,6 +131,7 @@ class Monster {
 
             this.game.hp -= damage;
             this.game.results.push(`The ${this.name} ${this.attack_str} for ${damage} damage.`);
+            this.game.lasthit = this.name;
         } else {
             this.game.results.push(`The ${this.name} ${this.miss_str}.`);
         }

@@ -159,7 +159,7 @@ class Game {
         if(win) {
             this.client.destroy("You won!", `You have recovered the Amulet of Wumpus. ${summary}`);
         } else {
-            this.client.destroy("Game over.", `You lost. ${summary}`);
+            this.client.destroy("Game over.", `You were killed by a ${this.lasthit}. ${summary}`);
         }
     }
 }
