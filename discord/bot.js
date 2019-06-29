@@ -34,6 +34,7 @@ class Client {
 
     async initialize(channel) {
         try {
+            game_clients[channel.id] = this;
             this.channel = channel;
             this.inv_message = await channel.send("Creating a new game... please be patient!");
             this.main_message = await channel.send("Creating a new game... please be patient!");
@@ -46,7 +47,6 @@ class Client {
             this.status = `Game created! Taking first action in ${this.delay * 2} seconds...`;
             this.timer = setTimeout(this.step.bind(this), this.delay * 1000);
             
-            game_clients[channel.id] = this;
             emitter.emit("new game", this, this.size);
         } catch (err) {
             console.error(err);
@@ -183,7 +183,7 @@ function initialize() {
                 break;
 
             case "z!end":
-                if (current) {
+                if (current && current.game) {
                     current.game.lasthit = "bolt of lightning from the sky";
                     current.game.end();
                 }
