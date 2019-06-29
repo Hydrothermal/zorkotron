@@ -14,7 +14,7 @@ const actions = {
 };
 const numbers = {
     "1\u20e3": "1",
-    "2\u20e3": "2"/*,
+    "2\u20e3": "2",
     "3\u20e3": "3",
     "4\u20e3": "4",
     "5\u20e3": "5",
@@ -22,28 +22,32 @@ const numbers = {
     "7\u20e3": "7",
     "8\u20e3": "8",
     "9\u20e3": "9",
-    "\ud83d\udd1f": "10"*/
+    "\ud83d\udd1f": "10"
 };
 const game_clients = {};
-const delay = 1000 * 10; // TODO: make configurable
 
 class Client {
+    constructor(size, delay) {
+        this.size = size;
+        this.delay = delay;
+    }
+
     async initialize(channel) {
         try {
             this.channel = channel;
-            this.inv_message = await channel.send("Creating a new game...");
-            this.main_message = await channel.send("Creating a new game...");
+            this.inv_message = await channel.send("Creating a new game... please be patient!");
+            this.main_message = await channel.send("Creating a new game... please be patient!");
 
             // these can be done asynchronously but discord throttles to one
             // reaction at a time anyway, so we might as well do them in order
             await this.addReactions("inventory");
             await this.addReactions("main");
 
-            this.status = "Game created! Taking next action in 10 seconds...";
-            this.timer = setTimeout(this.step.bind(this), delay);
+            this.status = `Game created! Taking first action in ${this.delay * 2} seconds...`;
+            this.timer = setTimeout(this.step.bind(this), this.delay * 1000);
             
             game_clients[channel.id] = this;
-            emitter.emit("new game", this);
+            emitter.emit("new game", this, this.size);
         } catch (err) {
             console.error(err);
         }
@@ -79,7 +83,7 @@ class Client {
         this.game.runTurn(action, item_num);
 
         await Promise.all(clean_set);
-        this.timer = setTimeout(this.step.bind(this), delay);
+        this.timer = setTimeout(this.step.bind(this), this.delay * 1000);
     }
 
     async addReactions(message) {
@@ -111,7 +115,7 @@ class Client {
             await this.addReactions("main");
         }
 
-        this.status = "Taking next action in 10 seconds...";
+        this.status = `Taking next action in ${this.delay} seconds...`;
         this.write();
     }
 
@@ -136,8 +140,8 @@ class Client {
     }
 }
 
-function postNewGame(channel) {
-    new Client().initialize(channel);
+function postNewGame(channel, size, delay) {
+    new Client(size, delay).initialize(channel);
 }
 
 function initialize() {
@@ -145,26 +149,46 @@ function initialize() {
 
     client.on("ready", () => {
         console.log("Discord ready.");
-        postNewGame(client.guilds.get("473707290084507659").channels.get("473707290084507663"));
     });
 
     client.on("message", message => {
+        if(message.author.bot) { return; }
+
         let channel = message.channel;
         let current = game_clients[channel.id];
+        let args = message.content.split(" ");
 
-        switch (message.content) {
-            case "!start":
+        switch (args[0]) {
+            case "z!start":
                 if (current) {
                     message.channel.send("A game is already running in this channel. Use !end to end it.")
                 } else {
-                    postNewGame(message.channel);
+                    let size = parseInt(args[1] || 20);
+                    let delay = parseInt(args[2] || 15);
+
+                    if(isNaN(size) || +size < 5) {
+                        message.channel.send("Size must be a whole number greater than or equal to 5.");
+                        return;
+                    }
+
+                    if(isNaN(delay) || +delay < 5) {
+                        message.channel.send("Delay must be a whole number greater than or equal to 5.");
+                        return;
+                    }
+
+                    postNewGame(message.channel, size, delay);
                 }
                 break;
 
-            case "!end":
+            case "z!end":
                 if (current) {
+                    current.game.lasthit = "bolt of lightning from the sky";
                     current.game.end();
                 }
+                break;
+
+            case "z!help":
+                message.channel.send("**Zorkotron 9000** is a procedurally generated text adventure bot. Any number of members can use reactions to vote on what action to take each turn. The goal is to roam through the dungeon, killing monsters and collecting valuables until you find the legendary Amulet of Wumpus. Use `z!start (map size) (delay)` to begin a new adventure. The default size is 20 (between 15 and 50 is recommended) and the default delay between actions is 15 seconds. Use `z!end` to end an ongoing game or `z!help` to view this message.\n\nCreated by: <@77258555295543296>, <@177019589010522112>, <@223264867526639616>.\nEmoji icons courtesy of https://icons8.com/.");
                 break;
         }
     });

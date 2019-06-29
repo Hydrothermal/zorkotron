@@ -4,9 +4,7 @@ const { joinList, randRange } = require("../util.js");
 const games = [];
 
 class Game {
-    constructor(client) {
-        let size = 20;
-
+    constructor(client, size) {
         this.client = client;
         this.inventory = [];
         this.results = [];
@@ -165,8 +163,8 @@ class Game {
 }
 
 function initialize() {
-    bot.on("new game", client => {
-        new Game(client);
+    bot.on("new game", (client, size) => {
+        new Game(client, size);
     });
 }
 
