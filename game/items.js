@@ -1,23 +1,23 @@
 const items = [
-    ["a gold ring",         { type: "valuable", amount: 4  }],
-    ["a silver ring",       { type: "valuable", amount: 6  }],
-    ["a necklace",          { type: "valuable", amount: 12 }],
-    ["a ruby",              { type: "valuable", amount: 25 }],
-    ["a diamond",           { type: "valuable", amount: 25 }],
-    ["a sapphire",          { type: "valuable", amount: 25 }],
-    ["a small crystal",     { type: "valuable", amount: 16 }],
-    ["a sack of coins",     { type: "valuable", amount: 18 }],
-    ["a cold biscuit",      { type: "food", amount: 2, usable: true }],
-    ["an old apple",        { type: "food", amount: 3, usable: true }],
-    ["a potato",            { type: "food", amount: 3, usable: true }],
-    ["an avocado",          { type: "food", amount: 5, usable: true }],
-    ["a chocolate bar",     { type: "food", amount: 5, usable: true }],
-    ["peanut brittle",      { type: "food", amount: 5, usable: true }],
-    ["a slice of pie",      { type: "food", amount: 7, usable: true }],
-    ["a turkey leg",        { type: "food", amount: 8, usable: true }],
-    ["a loaf of bread",     { type: "food", amount: 8, usable: true }],
-    ["a roasted rabbit",    { type: "food", amount: 9, usable: true }],
-    ["a bowl of stew",      { type: "food", amount: 10, usable: true }]
+    ["a gold ring",         { type: "valuable", value: 4  }],
+    ["a silver ring",       { type: "valuable", value: 6  }],
+    ["a necklace",          { type: "valuable", value: 12 }],
+    ["a ruby",              { type: "valuable", value: 25 }],
+    ["a diamond",           { type: "valuable", value: 25 }],
+    ["a sapphire",          { type: "valuable", value: 25 }],
+    ["a small crystal",     { type: "valuable", value: 16 }],
+    ["a sack of coins",     { type: "valuable", value: 18 }],
+    ["a cold biscuit",      { type: "food",     value: 1, heal: 2 }],
+    ["an old apple",        { type: "food",     value: 1, heal: 3 }],
+    ["a potato",            { type: "food",     value: 1, heal: 3 }],
+    ["an avocado",          { type: "food",     value: 5, heal: 5 }],
+    ["a chocolate bar",     { type: "food",     value: 10, heal: 5 }],
+    ["peanut brittle",      { type: "food",     value: 8, heal: 5 }],
+    ["a slice of pie",      { type: "food",     value: 6, heal: 7 }],
+    ["a turkey leg",        { type: "food",     value: 3, heal: 8 }],
+    ["a loaf of bread",     { type: "food",     value: 3, heal: 8 }],
+    ["a roasted rabbit",    { type: "food",     value: 8, heal: 9 }],
+    ["a bowl of stew",      { type: "food",     value: 8, heal: 10 }]
 ];
 
 class Item {
@@ -35,9 +35,9 @@ class Item {
         let game = this.game;
         
         if (this.type === "food") {
-            game.hp = Math.min(game.maxhp, game.hp + this.amount);
+            game.hp = Math.min(game.maxhp, game.hp + this.heal);
             game.inventory.splice(game.inventory.indexOf(this), 1);
-            game.results.push(`You ate ${this.name} and regained ${this.amount} hp.`);
+            game.results.push(`You ate ${this.name} and regained ${this.heal} hp.`);
         } else {
             game.results.push(`You can't use ${this.name}!`);
         }
@@ -48,11 +48,11 @@ class Item {
 
         switch (this.type) {
             case "valuable":
-                note = `worth ${this.amount} gold`;
+                note = `worth ${this.value} gold`;
                 break;
 
             case "food":
-                note = `heals for ${this.amount} hp`;
+                note = `worth ${this.value} gold; heals for ${this.heal} hp`;
                 break;
         }
 

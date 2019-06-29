@@ -153,7 +153,7 @@ class Game {
     }
 
     end(win) {
-        let gold = this.inventory.filter(item => item.type === "valuable").reduce((sum, item) => sum + item.amount, 0);
+        let gold = this.inventory.reduce((sum, item) => sum + item.value, 0);
         let summary = `You were a level ${this.level} adventurer carrying ${gold} gold worth of items.`;
 
         if(win) {
